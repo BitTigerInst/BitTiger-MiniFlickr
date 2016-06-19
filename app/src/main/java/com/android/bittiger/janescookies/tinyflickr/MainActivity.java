@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 
 public class MainActivity extends AppCompatActivity {
@@ -14,9 +15,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "----------onCreate----------");
 
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getSupportActionBar().hide();
+
         setContentView(R.layout.activity_main);
 
         handler = new Handler();
@@ -25,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Intent intent = new Intent(MainActivity.this,  GalleryActivity.class);
+
+                Log.d(TAG, "----------startActivityIntent----------");
                 startActivity(intent);
             }
         }, KEEP_TIME);

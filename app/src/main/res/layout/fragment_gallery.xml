@@ -3,6 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
+
+
     >
+
+
+    <com.reginald.swiperefresh.CustomSwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+    </com.reginald.swiperefresh.CustomSwipeRefreshLayout>
+
+
+    <!--
+    <TextView
+        android:id="@+id/search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text=" this is Fragment !"
+        android:background="#00ff00"
+        /-->
+
 
 </LinearLayout>
