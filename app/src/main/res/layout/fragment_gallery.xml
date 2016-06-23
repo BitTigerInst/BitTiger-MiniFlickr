@@ -7,6 +7,9 @@
 
     >
 
+    <SearchView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></SearchView>
 
     <com.reginald.swiperefresh.CustomSwipeRefreshLayout
         android:id="@+id/swipe_refresh"

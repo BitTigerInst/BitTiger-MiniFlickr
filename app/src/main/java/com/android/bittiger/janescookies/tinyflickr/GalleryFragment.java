@@ -82,11 +82,12 @@ public class GalleryFragment extends Fragment {
 
                 if (totalItem - 1 <= lastItemPos) {
                     List<Contact> result = new ArrayList<>();
-                    ArrayList<Contact> newlist = (ArrayList) Contact.generateSampleList();
+                    ArrayList<Contact> newlist = (ArrayList) Contact.generateSampleList(3);
 
                     for (int i = 0; i < newlist.size(); i++) {
 
-                        Contact item = new Contact();
+                        //Contact item = new Contact();
+                        Contact item = newlist.get(i);
                         result.add(item);
                     }
                     mAdapter.addAll(result);
@@ -103,7 +104,7 @@ public class GalleryFragment extends Fragment {
 
 
 //        mAdapter = new GalleryAdapter(getActivity(), new ArrayList<GalleryItem>());
-        mAdapter = new GalleryAdapter(getActivity(), Contact.generateSampleList());
+        mAdapter = new GalleryAdapter(getActivity(), Contact.generateSampleList(100));
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -114,7 +115,7 @@ public class GalleryFragment extends Fragment {
                 new CustomSwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        refresh();
+//                        refresh();
                     }
                 }
         );
@@ -128,17 +129,18 @@ public class GalleryFragment extends Fragment {
 
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //super.onCreateOptionsMenu(menu,  inflater);
+    public void onCreateOptionsMenu(Menu menu,MenuInflater inflater) {
+//        super.onCreateOptionsMenu(menu);
 
+//        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_menu, menu);
 
         MenuItem searchItem = menu.findItem(R.id.menu_item_search);
         mSearchView = (SearchView) searchItem.getActionView();
-
-        if (mSearchView != null) {
-            // error info
-        }
+//
+//        if (mSearchView != null) {
+//            // error info
+//        }
 
         // TODO: search suggestion
 

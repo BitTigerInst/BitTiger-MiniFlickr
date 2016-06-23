@@ -1,5 +1,6 @@
 package com.android.bittiger.janescookies.tinyflickr;
 
+import android.util.Log;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -11,9 +12,17 @@ import java.util.List;
 public class Contact {
     private String name="default";
     private ImageView image=null;
-    static int NoItems = 0;
+    public static int NoItems = 0;
+    private static final String TAG = "Contact" ;
 
-    public Contact() {
+    private static Contact instance = getInstance();
+
+    public static Contact getInstance() {
+        if (instance == null) {
+            instance = new Contact();
+        }
+
+        return instance;
     }
 
     public String getName() {
@@ -35,16 +44,19 @@ public class Contact {
 
 
     // this is actually initialization for name
-    public static List<Contact> generateSampleList(){
+    public static List<Contact> generateSampleList(int samples){
         List<Contact> list = new ArrayList<>();
-        for(int i= 0; i < 100; i++){
-            Contact contact = new Contact();
+        //Log.d(TAG, "--------generateSampleList-----samples is " + samples + " ----NoItems---- is " + NoItems);
+
+        for(int i= 0 ; i < samples; i++){  // dynamically initialize photoes
+            //Contact contact = new Contact();
+            Contact contact = getInstance();
             contact.setName("Name - " + i);
 //            contact.setImage();//  only get null pointer
 
             list.add(contact);
         }
-
+        //NoItems = NoItems + samples;
         return list;
     }
 
