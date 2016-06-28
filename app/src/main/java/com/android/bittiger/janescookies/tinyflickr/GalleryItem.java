@@ -1,5 +1,7 @@
 package com.android.bittiger.janescookies.tinyflickr;
 
+import android.util.Log;
+
 /**
  * Created by xicheng on 16/6/17.
  */
@@ -22,6 +24,8 @@ public class GalleryItem {
     }
 
     public String getUrl() {
+        Log.d("GalleryItem", "-------------getUrl-------: http://farm" + farm + ".static.flickr.com/" + server + "/" + id + "_" + secret + ".jpg" );
+
         return "http://farm" + farm + ".static.flickr.com/" + server + "/" + id + "_" + secret + ".jpg" ;
     }
 

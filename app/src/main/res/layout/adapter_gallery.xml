@@ -13,12 +13,20 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"/>
 
+    <!--
+    <com.android.volley.toolbox.NetworkImageView
+        android:id="@+id/networkimage"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_margin="2dp"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"/>
 
     <TextView
-        android:id="@+id/contact_item"
+        android:id="@+id/text_item"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-       />
+       /-->
 
 
 </LinearLayout>

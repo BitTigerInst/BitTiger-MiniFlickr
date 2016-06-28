@@ -1,12 +1,15 @@
 package com.android.bittiger.janescookies.tinyflickr;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,9 +18,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SearchView;
+import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.reginald.swiperefresh.CustomSwipeRefreshLayout;
 
 import org.json.JSONArray;
@@ -38,6 +52,8 @@ public class GalleryFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private CustomSwipeRefreshLayout mCustomSwipeRefreshLayout;
     private GridLayoutManager mLayoutManager;
+    private RequestQueue mRq;
+
 
     private GalleryAdapter mAdapter;
     private ArrayList<GalleryItem> mItems;
@@ -47,6 +63,16 @@ public class GalleryFragment extends Fragment {
 
 
 
+    //26.1
+    private GridView mGridView;
+
+    //27.4
+//    private ThumbnailDownloader<ImageView> mThumbnailThread;
+
+
+    public GalleryFragment() {
+
+    }
 
 
     @Override
@@ -64,47 +90,22 @@ public class GalleryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gallery, container, false);
 
+        mRq = Volley.newRequestQueue(getActivity());
+//        RequestQueue queue = Volley.newRequestQueue(getActivity());
+
+
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                int totalItem = mLayoutManager.getItemCount();
-                Log.d(TAG, "--------onScrolled-----totalItem is " + totalItem);
-
-
-                int lastItemPos = mLayoutManager.findLastVisibleItemPosition();
-                Log.d(TAG, "--------onScrolled-----lastItemPos is " + lastItemPos);
-//                if (mHasMore && !mLoading && totalItem -1 != lastItemPos) {
-//                    startLoading();
-//                }
-
-                if (totalItem - 1 <= lastItemPos) {
-                    List<Contact> result = new ArrayList<>();
-                    ArrayList<Contact> newlist = (ArrayList) Contact.generateSampleList(3);
-
-                    for (int i = 0; i < newlist.size(); i++) {
-
-                        //Contact item = new Contact();
-                        Contact item = newlist.get(i);
-                        result.add(item);
-                    }
-                    mAdapter.addAll(result);
-                }
-
-                mAdapter.notifyDataSetChanged();
-
-                mCustomSwipeRefreshLayout.refreshComplete();
-            }
-        });
 
         mLayoutManager = new GridLayoutManager(getActivity(), COLUMN_NUM);
+
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-
-//        mAdapter = new GalleryAdapter(getActivity(), new ArrayList<GalleryItem>());
-        mAdapter = new GalleryAdapter(getActivity(), Contact.generateSampleList(100));
+        mAdapter = new GalleryAdapter(getActivity(), new ArrayList<GalleryItem>());
+//        Log.d("Contact", "--------onCreateView----- generate 100 items for Adapter");
+//
+//        mAdapter = new GalleryAdapter(getActivity(), Contact.generateSampleList(100));
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -120,11 +121,158 @@ public class GalleryFragment extends Fragment {
                 }
         );
 
-//        startLoading();
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int totalItem = mLayoutManager.getItemCount();
+                Log.d(TAG, "--------onScrolled-----totalItem is " + totalItem);
+
+                int lastItemPos = mLayoutManager.findLastVisibleItemPosition();
+                Log.d(TAG, "--------onScrolled-----lastItemPos is " + lastItemPos);
+
+//                if (mHasMore && !mLoading && totalItem -1 != lastItemPos) {
+//                    startLoading();
+//                }
+
+                if (totalItem - 1 <= lastItemPos) {
+
+                      startLoading();
+                }
+
+
+            }
+        });
+
+        startLoading();
         return view;
     }
 
+    public void refresh() {
+        mAdapter.clear();
+        startLoading();
+    }
 
+    private void startLoading() {
+        Log.d(TAG, "startLoading");
+//        mLoading = true;
+
+        int totalItem = mLayoutManager.getItemCount();
+        final int page = totalItem / ITEM_PER_PAGE + 1;
+
+        String query = PreferenceManager.
+                getDefaultSharedPreferences(getActivity()).
+                getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
+
+        String url = FlickrFetchr.getInstance().getItemUrl(query , page);
+
+        JsonObjectRequest request = new JsonObjectRequest(url, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG, "onResonse " + response);
+
+                List<GalleryItem> result = new ArrayList<>();
+
+                try {
+                    JSONObject photos = response.getJSONObject("photos");
+
+                    if (photos.getInt("pages") == page) {
+//                        mHasMore = false;
+                    }
+
+                    JSONArray photoArr = photos.getJSONArray("photo");
+                    for ( int i = 0; i < photoArr.length(); i++) {
+                        JSONObject itemObj = photoArr.getJSONObject(i);
+                        GalleryItem item = new GalleryItem(
+                                itemObj.getString("id"),
+                                itemObj.getString("secret"),
+                                itemObj.getString("server"),
+                                itemObj.getString("farm")
+                        );
+
+                        result.add(item);
+                    }
+                } catch (JSONException e) {
+
+                }
+                mAdapter.addAll(result);
+                mAdapter.notifyDataSetChanged();
+//                mLoading = false;
+                mCustomSwipeRefreshLayout.refreshComplete();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }
+        );
+        request.setTag(TAG);
+        mRq.add(request);
+
+        /*   -------------------------------------------------
+        //imagerequest
+//        final ImageView mImageView;
+        final String url = "http://i.imgur.com/7spzG.png";
+
+        // Retrieves an image specified by the URL, displays it in the UI.
+        ImageRequest request = new ImageRequest(url,
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap bitmap) {
+                        Log.d(TAG, "ImageRequest onResonse Bitmap " + bitmap);
+
+                        List<Contact> result = new ArrayList<>();
+                        Log.d("Contact", "--------ImageRequest, onResponse----- generate 3 items for Adapter");
+                        ArrayList<Contact> newlist = (ArrayList) Contact.generateSampleList(3);
+
+                        for (int i = 0; i < newlist.size(); i++) {
+
+                            Contact item = newlist.get(i);
+
+
+                            //temp test for public image, later change back to private
+                            item.image = (ImageView) v.findViewById(R.id.networkimage);
+
+//                            item.getImage().setImageResource(R.drawable.me);
+                            item.getImage().setImageBitmap(bitmap);
+//                            item.getImage().setImageResource(R.drawable.me);
+
+                            ImageLoader mImageLoader;
+
+                            mImageLoader = MySingleton.getInstance(getActivity()).getImageLoader();
+                            mImageLoader.get(url, ImageLoader.getImageListener(item.getImage(),
+                                    R.drawable.me, 0));
+
+
+                            mAdapter.add(item);
+
+                            if (item.getImage() == null) {
+                                Log.d(TAG, "ImageRequest onResonse  :  -----------item.getImage() == null " );
+                            }else {
+                                Log.d(TAG, "ImageRequest onResonse  :  -----------item.getImage() != null " );
+                            }
+                        }
+//                        mAdapter.addAll(newlist);
+
+                        mAdapter.notifyDataSetChanged();
+                        //mLoading = false;
+                        mCustomSwipeRefreshLayout.refreshComplete();
+
+                    }
+                }, 0, 0, null,
+                new Response.ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+//                        mImageView.setImageResource(R.drawable.image_load_error);
+                    }
+                });
+
+        // Access the RequestQueue through your singleton class.
+        MySingleton.getInstance(getActivity()).addToRequestQueue(request); //getActivity() extends Context
+*/
+
+
+    }
 
 
 

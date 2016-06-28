@@ -10,8 +10,11 @@ import java.util.List;
  * Created by xicheng on 16/6/19.
  */
 public class Contact {
+
     private String name="default";
-    private ImageView image=null;
+    //private
+    public ImageView image=null;
+
     public static int NoItems = 0;
     private static final String TAG = "Contact" ;
 
@@ -39,7 +42,9 @@ public class Contact {
 
       // can not generate imageview object here !
     public void setImage() {
-        this.image.setImageResource(R.drawable.dog);
+        Log.d(TAG, "setImage now " );
+//        this.image.setImageResource(R.drawable.dog);
+//        this.image = newimage;
     }
 
 
@@ -52,6 +57,9 @@ public class Contact {
             //Contact contact = new Contact();
             Contact contact = getInstance();
             contact.setName("Name - " + i);
+
+            // before add each image item into Adapter, iamge items cannot get imageview layout info thus only null pointers ?
+//            contact.image.setImageResource(R.drawable.dog);
 //            contact.setImage();//  only get null pointer
 
             list.add(contact);

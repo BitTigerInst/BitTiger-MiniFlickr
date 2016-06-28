@@ -48,10 +48,25 @@ public class GalleryActivity extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         Log.d(TAG, "----------handleIntent----------");
 
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.fragment_gallery);
+//        FragmentManager fm = getSupportFragmentManager();
+//        Fragment fragment = fm.findFragmentById(R.id.fragment_gallery);
 
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.d(TAG, "Received a new search query: " + query);
 
+            PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit()
+                    .putString(FlickrFetchr.PREF_SEARCH_QUERY, query)
+                    .commit();
+
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment fragment = fm.findFragmentById(R.id.fragment_gallery);
+
+            if(fragment!= null) {
+                ( (GalleryFragment) fragment).refresh();
+            }
+        }
 
 
     }
