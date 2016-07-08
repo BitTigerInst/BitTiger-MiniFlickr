@@ -1,7 +1,13 @@
 package com.android.bittiger.janescookies.tinyflickr;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.ComponentName;
+import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -61,7 +67,8 @@ public class GalleryFragment extends Fragment {
     private static final int COLUMN_NUM = 3;
     private static final int ITEM_PER_PAGE = 100;
 
-
+    private boolean mHasMore = true;
+    private boolean mLoading = false;
 
     //26.1
     private GridView mGridView;
@@ -81,9 +88,10 @@ public class GalleryFragment extends Fragment {
 
         super.onCreate(savedInstanceState);
 
-        setRetainInstance(true);
+        //setRetainInstance(true);
 
         setHasOptionsMenu(true);
+
     }
 
     @Override
@@ -97,6 +105,21 @@ public class GalleryFragment extends Fragment {
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int totalItem = mLayoutManager.getItemCount();
+                Log.d(TAG, "--------onScrolled-----totalItem is " + totalItem);
+
+                int lastItemPos = mLayoutManager.findLastVisibleItemPosition();
+                Log.d(TAG, "--------onScrolled-----lastItemPos is " + lastItemPos);
+
+                if (mHasMore && !mLoading && totalItem -1 != lastItemPos) {
+                    startLoading();
+                }
+            }
+        });
+
 
         mLayoutManager = new GridLayoutManager(getActivity(), COLUMN_NUM);
 
@@ -116,33 +139,12 @@ public class GalleryFragment extends Fragment {
                 new CustomSwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-//                        refresh();
+                        refresh();
                     }
                 }
         );
 
 
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                int totalItem = mLayoutManager.getItemCount();
-                Log.d(TAG, "--------onScrolled-----totalItem is " + totalItem);
-
-                int lastItemPos = mLayoutManager.findLastVisibleItemPosition();
-                Log.d(TAG, "--------onScrolled-----lastItemPos is " + lastItemPos);
-
-//                if (mHasMore && !mLoading && totalItem -1 != lastItemPos) {
-//                    startLoading();
-//                }
-
-                if (totalItem - 1 <= lastItemPos) {
-
-                      startLoading();
-                }
-
-
-            }
-        });
 
         startLoading();
         return view;
@@ -155,16 +157,23 @@ public class GalleryFragment extends Fragment {
 
     private void startLoading() {
         Log.d(TAG, "startLoading");
-//        mLoading = true;
+        mLoading = true;
 
         int totalItem = mLayoutManager.getItemCount();
         final int page = totalItem / ITEM_PER_PAGE + 1;
 
-        String query = PreferenceManager.
-                getDefaultSharedPreferences(getActivity()).
-                getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
+//        String query = PreferenceManager.
+//                getDefaultSharedPreferences(getActivity()).
+//                getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
 
-        String url = FlickrFetchr.getInstance().getItemUrl(query , page);
+        String query = PreferenceManager
+                .getDefaultSharedPreferences(getActivity())
+                .getString(UrlManager.PREF_SEARCH_QUERY, null);
+
+        Log.d(TAG, "startLoading--testsearchview-----query is----"+ query);
+
+        String url = UrlManager.getInstance().getItemUrl(query, page);
+//        String url = FlickrFetchr.getInstance().getItemUrl(query , page);
 
         JsonObjectRequest request = new JsonObjectRequest(url, new Response.Listener<JSONObject>() {
             @Override
@@ -177,7 +186,7 @@ public class GalleryFragment extends Fragment {
                     JSONObject photos = response.getJSONObject("photos");
 
                     if (photos.getInt("pages") == page) {
-//                        mHasMore = false;
+                        mHasMore = false;
                     }
 
                     JSONArray photoArr = photos.getJSONArray("photo");
@@ -197,7 +206,7 @@ public class GalleryFragment extends Fragment {
                 }
                 mAdapter.addAll(result);
                 mAdapter.notifyDataSetChanged();
-//                mLoading = false;
+                mLoading = false;
                 mCustomSwipeRefreshLayout.refreshComplete();
             }
         }, new Response.ErrorListener() {
@@ -274,7 +283,17 @@ public class GalleryFragment extends Fragment {
 
     }
 
+    private void stopLoading() {
+        if (mRq != null) {
+            mRq.cancelAll(TAG);
+        }
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopLoading();
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu,MenuInflater inflater) {
@@ -285,28 +304,78 @@ public class GalleryFragment extends Fragment {
 
         MenuItem searchItem = menu.findItem(R.id.menu_item_search);
         mSearchView = (SearchView) searchItem.getActionView();
-//
-//        if (mSearchView != null) {
-//            // error info
-//        }
 
-        // TODO: search suggestion
+        if (mSearchView != null) {
+            Log.d("onCreateOptionsMenu", "---testsearchview---- mSearchView is not null  -----------");
+
+            // search suggestion
+            mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+                @Override
+                public boolean onSuggestionSelect(int position) {
+                    String suggestion = getSuggestion(position);
+
+                    if(mSearchView !=null && suggestion !=null) {
+                        mSearchView.setQuery(suggestion, true);
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean onSuggestionClick(int position) {
+                    String suggestion = getSuggestion(position);
+
+                    if(mSearchView !=null && suggestion !=null) {
+                        mSearchView.setQuery(suggestion, true);
+                    }
+
+                    return true;
+                }
+
+                private String getSuggestion(int posiiton) {
+                    String suggest = null;
+
+                    if(mSearchView !=null) {
+                        Cursor cursor = (Cursor) mSearchView.getSuggestionsAdapter().getItem(posiiton);
+                        suggest = cursor.getString(
+                                cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
+                    }
+                    return suggest;
+                }
+            });
+        }
+
+        SearchManager searchManager = (SearchManager) getActivity()
+                .getSystemService(Context.SEARCH_SERVICE);
+        ComponentName name = getActivity().getComponentName();
+        SearchableInfo searchInfo = searchManager.getSearchableInfo(name);
+        mSearchView.setSearchableInfo(searchInfo);
 
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        boolean selectionHandled = false;
+
         switch (item.getItemId()) {
-            /*
             case R.id.menu_item_search:
+                Log.d("onOptionsItemSelected", "---testsearchview---- menu search request -----------");
+
                 getActivity().onSearchRequested();
-                return true;
+                selectionHandled = true;
+                break;
             case R.id.menu_item_move:
                 if (mRecyclerView != null) {
                     mRecyclerView.smoothScrollToPosition(0);
                 }
-                return true;
+                selectionHandled = true;
+                break;
             case R.id.menu_item_clear:
+                Log.d("onOptionsItemSelected", "------- menu clear request -----------");
+
+                SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
+                        SuggestionProvider.AUTHORITY, SuggestionProvider.MODE);
+                suggestions.clearHistory();
+
                 if (mSearchView != null) {
                     mSearchView.setQuery("", false);
                     mSearchView.setIconified(false);
@@ -318,10 +387,13 @@ public class GalleryFragment extends Fragment {
                         .commit();
 
                 refresh();
-                return true;
-                */
+                selectionHandled = true;
+                break;
+
             default:
-                return super.onOptionsItemSelected(item);
+                selectionHandled = super.onOptionsItemSelected(item);
+                break;
         }
+        return selectionHandled;
     }
 }

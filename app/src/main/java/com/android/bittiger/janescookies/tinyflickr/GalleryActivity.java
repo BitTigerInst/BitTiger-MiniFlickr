@@ -6,15 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.Window;
-import android.widget.SearchView;
+
 
 /**
  * Created by xicheng on 16/6/13.
@@ -31,9 +28,11 @@ public class GalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        this.getSupportActionBar().hide();
+        //this.getSupportActionBar().hide();
+        //this.getSupportActionBar().show();
         setContentView(R.layout.activity_gallery);
-
+        // test to fix searchview
+        //handleIntent(getIntent());
     }
 
 
@@ -41,6 +40,7 @@ public class GalleryActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
 
         Log.d(TAG, "----------onNewIntent----------");
+        setIntent(intent);
         handleIntent(intent);
     }
 
@@ -48,16 +48,23 @@ public class GalleryActivity extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         Log.d(TAG, "----------handleIntent----------");
 
-//        FragmentManager fm = getSupportFragmentManager();
-//        Fragment fragment = fm.findFragmentById(R.id.fragment_gallery);
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d(TAG, "Received a new search query: " + query);
+            Log.d(TAG, "---handleIntent----testsearchview---Received a new search query: " + query);
+
+//            PreferenceManager.getDefaultSharedPreferences(this)
+//                    .edit()
+//                    .putString(FlickrFetchr.PREF_SEARCH_QUERY, query)
+//                    .commit();
+
+            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this,
+                    SuggestionProvider.AUTHORITY, SuggestionProvider.MODE);
+            suggestions.saveRecentQuery(query, null);
 
             PreferenceManager.getDefaultSharedPreferences(this)
                     .edit()
-                    .putString(FlickrFetchr.PREF_SEARCH_QUERY, query)
+                    .putString(UrlManager.PREF_SEARCH_QUERY, query)
                     .commit();
 
             FragmentManager fm = getSupportFragmentManager();
@@ -71,49 +78,6 @@ public class GalleryActivity extends AppCompatActivity {
 
     }
 
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //super.onCreateOptionsMenu(menu,  inflater);
-
-        //MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu, menu);
-
-        //MenuItem searchItem = menu.findItem(R.id.menu_item_search);
-        SearchManager searchManager =
-                (SearchManager) GalleryActivity.this.getSystemService(Context.SEARCH_SERVICE);
-
-        //SearchView mSearchView = (SearchView) findViewById(R.id.search_bar);
-        SearchView mSearchView = (SearchView) menu.findItem(R.id.search).getActionView();
-
-        if (mSearchView != null) {
-            // error info
-            mSearchView.setSearchableInfo(searchManager.
-                    getSearchableInfo(getComponentName()));
-        }
-
-        //mSearchView.setIconifiedByDefault(false);
-        //mSearchView.onActionViewExpanded();
-
-
-//        if (searchItem != null) {
-//            mSearchView = (SearchView) searchItem.getActionView();
-//        }
-//
-//
-//        if (mSearchView != null) {
-//            // error info
-//            mSearchView.setSearchableInfo(searchManager.
-//                    getSearchableInfo(GalleryActivity.this.getComponentName()));
-//        }
-
-
-
-        // TODO: search suggestion
-
-        return true;
-        //return super.onCreateOptionsMenu(menu);
-    }*/
 
 
 }
