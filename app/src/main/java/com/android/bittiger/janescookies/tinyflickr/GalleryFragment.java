@@ -7,15 +7,19 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.provider.SearchRecentSuggestions;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.SearchRecentSuggestions;
+import android.support.v4.app.Fragment;
+
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +31,8 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SearchView;
+//import android.support.v7.widget.SearchView;
+
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -51,25 +57,26 @@ import java.util.List;
  * Created by xicheng on 16/6/16.
  */
 public class GalleryFragment extends Fragment {
-
-    private SearchView mSearchView ;
     private static final String TAG = "GalleryFragment" ;
-
-    private RecyclerView mRecyclerView;
-    private CustomSwipeRefreshLayout mCustomSwipeRefreshLayout;
-    private GridLayoutManager mLayoutManager;
-    private RequestQueue mRq;
-
-
-    private GalleryAdapter mAdapter;
-    private ArrayList<GalleryItem> mItems;
 
     private static final int COLUMN_NUM = 3;
     private static final int ITEM_PER_PAGE = 100;
 
-    private boolean mHasMore = true;
-    private boolean mLoading = false;
+    private RequestQueue mRq;
+    private RecyclerView mRecyclerView;
 
+    private GridLayoutManager mLayoutManager;
+
+    private CustomSwipeRefreshLayout mCustomSwipeRefreshLayout;
+
+    private GalleryAdapter mAdapter;
+    private ArrayList<GalleryItem> mItems;
+
+
+    private boolean mLoading = false;
+    private boolean mHasMore = true;
+
+    private SearchView mSearchView ;
     //26.1
     private GridView mGridView;
 
@@ -178,7 +185,7 @@ public class GalleryFragment extends Fragment {
         JsonObjectRequest request = new JsonObjectRequest(url, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d(TAG, "onResonse " + response);
+                Log.d(TAG, "onResponse " + response);
 
                 List<GalleryItem> result = new ArrayList<>();
 
@@ -219,67 +226,6 @@ public class GalleryFragment extends Fragment {
         request.setTag(TAG);
         mRq.add(request);
 
-        /*   -------------------------------------------------
-        //imagerequest
-//        final ImageView mImageView;
-        final String url = "http://i.imgur.com/7spzG.png";
-
-        // Retrieves an image specified by the URL, displays it in the UI.
-        ImageRequest request = new ImageRequest(url,
-                new Response.Listener<Bitmap>() {
-                    @Override
-                    public void onResponse(Bitmap bitmap) {
-                        Log.d(TAG, "ImageRequest onResonse Bitmap " + bitmap);
-
-                        List<Contact> result = new ArrayList<>();
-                        Log.d("Contact", "--------ImageRequest, onResponse----- generate 3 items for Adapter");
-                        ArrayList<Contact> newlist = (ArrayList) Contact.generateSampleList(3);
-
-                        for (int i = 0; i < newlist.size(); i++) {
-
-                            Contact item = newlist.get(i);
-
-
-                            //temp test for public image, later change back to private
-                            item.image = (ImageView) v.findViewById(R.id.networkimage);
-
-//                            item.getImage().setImageResource(R.drawable.me);
-                            item.getImage().setImageBitmap(bitmap);
-//                            item.getImage().setImageResource(R.drawable.me);
-
-                            ImageLoader mImageLoader;
-
-                            mImageLoader = MySingleton.getInstance(getActivity()).getImageLoader();
-                            mImageLoader.get(url, ImageLoader.getImageListener(item.getImage(),
-                                    R.drawable.me, 0));
-
-
-                            mAdapter.add(item);
-
-                            if (item.getImage() == null) {
-                                Log.d(TAG, "ImageRequest onResonse  :  -----------item.getImage() == null " );
-                            }else {
-                                Log.d(TAG, "ImageRequest onResonse  :  -----------item.getImage() != null " );
-                            }
-                        }
-//                        mAdapter.addAll(newlist);
-
-                        mAdapter.notifyDataSetChanged();
-                        //mLoading = false;
-                        mCustomSwipeRefreshLayout.refreshComplete();
-
-                    }
-                }, 0, 0, null,
-                new Response.ErrorListener() {
-                    public void onErrorResponse(VolleyError error) {
-//                        mImageView.setImageResource(R.drawable.image_load_error);
-                    }
-                });
-
-        // Access the RequestQueue through your singleton class.
-        MySingleton.getInstance(getActivity()).addToRequestQueue(request); //getActivity() extends Context
-*/
-
 
     }
 
@@ -304,6 +250,55 @@ public class GalleryFragment extends Fragment {
 
         MenuItem searchItem = menu.findItem(R.id.menu_item_search);
         mSearchView = (SearchView) searchItem.getActionView();
+
+/**********************/
+
+//        mSearchView.setIconifiedByDefault(true);
+//        mSearchView.onActionViewExpanded();// 写上此句后searchView初始是可以点击输入的状态，如果不写，那么就需要点击下放大镜，才能出现输入框
+//        mSearchView.setFocusable(false);// 是否获取焦点
+//        mSearchView.clearFocus();
+//
+//        mSearchView.setOnQueryTextListener(new OnQueryTextListener() {
+//
+//            private String TAG = getClass().getSimpleName();
+//
+//            /*
+//             * 在输入时触发的方法，当字符真正显示到searchView中才触发，像是拼音，在舒服法组词的时候不会触发
+//             *
+//             * @param queryText
+//             *
+//             * @return false if the SearchView should perform the default action
+//             * of showing any suggestions if available, true if the action was
+//             * handled by the listener.
+//             */
+//            @Override
+//            public boolean onQueryTextChange(String queryText) {
+//                Log.d(TAG, "onQueryTextChange = " + queryText);
+//
+//
+//
+//                // TODO:当searchview中文字改变时进行的操作
+//                return true;
+//            }
+//
+//            /*
+//             * 输入完成后，提交时触发的方法，一般情况是点击输入法中的搜索按钮才会触发。表示现在正式提交了
+//             *
+//             * @param queryText
+//             *
+//             * @return true to indicate that it has handled the submit request.
+//             * Otherwise return false to let the SearchView handle the
+//             * submission by launching any associated intent.
+//             */
+//            @Override
+//            public boolean onQueryTextSubmit(String queryText) {
+//                Log.d(TAG, "onQueryTextSubmit = " + queryText);
+//
+//                // TODO：当用户提交搜索结果时，需要进行的操作return true;
+//                return true;
+//            }
+//        });
+/**********************/
 
         if (mSearchView != null) {
             Log.d("onCreateOptionsMenu", "---testsearchview---- mSearchView is not null  -----------");
@@ -331,13 +326,12 @@ public class GalleryFragment extends Fragment {
                     return true;
                 }
 
-                private String getSuggestion(int posiiton) {
+                private String getSuggestion(int position) {
                     String suggest = null;
 
                     if(mSearchView !=null) {
-                        Cursor cursor = (Cursor) mSearchView.getSuggestionsAdapter().getItem(posiiton);
-                        suggest = cursor.getString(
-                                cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
+                        Cursor cursor = (Cursor) mSearchView.getSuggestionsAdapter().getItem(position);
+                        suggest = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
                     }
                     return suggest;
                 }
@@ -370,7 +364,7 @@ public class GalleryFragment extends Fragment {
                 selectionHandled = true;
                 break;
             case R.id.menu_item_clear:
-                Log.d("onOptionsItemSelected", "------- menu clear request -----------");
+                Log.d("onOptionsItemSelected", "---testsearchview---- menu clear request -----------");
 
                 SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
                         SuggestionProvider.AUTHORITY, SuggestionProvider.MODE);
@@ -381,9 +375,14 @@ public class GalleryFragment extends Fragment {
                     mSearchView.setIconified(false);
                 }
 
+//                PreferenceManager.getDefaultSharedPreferences(getActivity())
+//                        .edit()
+//                        .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+//                        .commit();
+//
                 PreferenceManager.getDefaultSharedPreferences(getActivity())
                         .edit()
-                        .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+                        .putString(UrlManager.PREF_SEARCH_QUERY, null)
                         .commit();
 
                 refresh();

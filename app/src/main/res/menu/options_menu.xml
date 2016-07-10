@@ -10,7 +10,7 @@
         />
     <item android:id="@+id/menu_item_move"
         android:title="@string/move_to_top"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:icon="@android:drawable/ic_menu_revert"
         app:showAsAction="ifRoom"
         />
     <item android:id="@+id/menu_item_clear"

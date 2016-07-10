@@ -20,9 +20,8 @@ public class GalleryActivity extends AppCompatActivity {
     private static final String TAG = GalleryActivity.class.getSimpleName();
 
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "----------onCreate----------");
 
         super.onCreate(savedInstanceState);
@@ -68,7 +67,7 @@ public class GalleryActivity extends AppCompatActivity {
                     .commit();
 
             FragmentManager fm = getSupportFragmentManager();
-            Fragment fragment = fm.findFragmentById(R.id.fragment_gallery);
+            Fragment fragment = fm.findFragmentById(R.id.gallery_fragment);
 
             if(fragment!= null) {
                 ( (GalleryFragment) fragment).refresh();

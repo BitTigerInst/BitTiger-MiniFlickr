@@ -2,10 +2,12 @@ package com.android.bittiger.janescookies.tinyflickr;
 
 import android.util.Log;
 
+import java.io.Serializable;
+
 /**
  * Created by xicheng on 16/6/17.
  */
-public class GalleryItem {
+public class GalleryItem implements Serializable  {
 
     private String id;
     private String secret;

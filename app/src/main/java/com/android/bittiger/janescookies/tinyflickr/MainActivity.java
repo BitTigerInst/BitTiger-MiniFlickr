@@ -19,11 +19,11 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getSupportActionBar().hide();
+        //this.getSupportActionBar().hide();
 
         setContentView(R.layout.activity_main);
-
         handler = new Handler();
+
 
         handler.postDelayed(new Runnable() {
             @Override

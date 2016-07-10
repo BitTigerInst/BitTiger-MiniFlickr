@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools = "http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.android.bittiger.janescookies.tinyflickr.GalleryActivity"
-    >
+    tools:context="com.android.bittiger.janescookies.tinyflickr.GalleryActivity">
 
 
     <fragment
-        android:id="@+id/fragment_gallery"
+        android:id="@+id/gallery_fragment"
         android:name="com.android.bittiger.janescookies.tinyflickr.GalleryFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-         />
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

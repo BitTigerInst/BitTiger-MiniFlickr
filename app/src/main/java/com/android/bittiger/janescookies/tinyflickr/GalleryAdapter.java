@@ -2,6 +2,7 @@ package com.android.bittiger.janescookies.tinyflickr;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,8 +44,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             mImageView = (ImageView) itemView.findViewById(R.id.gallery_item);
 
             // for test, use me.jpg from drawable/
-            Log.d("Contact", "--------ViewHolder------setImageResource to me " );
-            mImageView.setImageResource(R.drawable.me);
+            //Log.d("Contact", "--------ViewHolder------setImageResource to me " );
+            //mImageView.setImageResource(R.drawable.me);
 
         }
     }
@@ -60,24 +61,25 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
-
 //        Contact item = mList.get(position);
-        GalleryItem item = mList.get(position);
+        final GalleryItem item = mList.get(position);
 
 
 
-        ImageView nameImageView = holder.mImageView;
+        //ImageView nameImageView = holder.mImageView;
 //        Log.d("Contact", "--------onBindViewHolder------setImageResource to dog " );
 //        nameImageView.setImageResource(R.drawable.dog);
 
-        nameImageView.setOnClickListener(new View.OnClickListener() {
+        holder.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                //click on photo and redirects to another page
+                Intent intent = new Intent(mContext, PhotoActivity.class);
+                intent.putExtra("item", item);
+                mContext.startActivity(intent);
             }
         });
-
 
         Glide.with(mContext)
                 .load(item.getUrl())
