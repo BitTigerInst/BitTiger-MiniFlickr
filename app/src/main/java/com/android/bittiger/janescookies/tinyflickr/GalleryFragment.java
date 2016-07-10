@@ -338,8 +338,7 @@ public class GalleryFragment extends Fragment {
             });
         }
 
-        SearchManager searchManager = (SearchManager) getActivity()
-                .getSystemService(Context.SEARCH_SERVICE);
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         ComponentName name = getActivity().getComponentName();
         SearchableInfo searchInfo = searchManager.getSearchableInfo(name);
         mSearchView.setSearchableInfo(searchInfo);

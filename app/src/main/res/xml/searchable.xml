@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
-    android:label="PhotoSearch"
+    android:label="@string/app_name"
     android:hint="@string/search_hint"
     android:searchSuggestAuthority="com.android.bittiger.janescookies.tinyflickr.SuggestionProvider"
-    android:searchSuggestSelection=" ?"
-    >
+    android:searchSuggestSelection=" ?">
 
 </searchable>
