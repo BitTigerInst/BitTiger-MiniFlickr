@@ -356,6 +356,7 @@ public class GalleryFragment extends Fragment {
                 getActivity().onSearchRequested();
                 selectionHandled = true;
                 break;
+            /*
             case R.id.menu_item_move:
                 if (mRecyclerView != null) {
                     mRecyclerView.smoothScrollToPosition(0);
@@ -387,7 +388,32 @@ public class GalleryFragment extends Fragment {
                 refresh();
                 selectionHandled = true;
                 break;
+            */
+            case R.id.menu_item_delete:
+                Log.d("onOptionsItemSelected", "---testsearchview---- menu clear request -----------");
 
+                SearchRecentSuggestions suggestions = new SearchRecentSuggestions(getActivity(),
+                        SuggestionProvider.AUTHORITY, SuggestionProvider.MODE);
+                suggestions.clearHistory();
+
+                if (mSearchView != null) {
+                    mSearchView.setQuery("", false);
+                    mSearchView.setIconified(false);
+                }
+
+//                PreferenceManager.getDefaultSharedPreferences(getActivity())
+//                        .edit()
+//                        .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+//                        .commit();
+//
+                PreferenceManager.getDefaultSharedPreferences(getActivity())
+                        .edit()
+                        .putString(UrlManager.PREF_SEARCH_QUERY, null)
+                        .commit();
+
+                refresh();
+                selectionHandled = true;
+                break;
             default:
                 selectionHandled = super.onOptionsItemSelected(item);
                 break;

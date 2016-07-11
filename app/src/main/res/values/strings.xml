@@ -8,4 +8,5 @@
     <string name="search_hint">Search Flickr</string>
     <string name="download">Download</string>
     <string name="open_in_app">Open in App</string>
+    <string name="settings_description">this is description</string>
 </resources>
