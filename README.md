@@ -5,14 +5,14 @@ In this project, we use the Flickr API[1] to create an infinite scrolling list o
 
 This android application has the following functionality:
 
-Infinite scrolling with high performance
-Pull refreshing
-HTTP requesting/responding and JSON parsing
-Asynchronous image loading
-Menu with SearchView and SearchSuggestion
-Activity and fragment
-RecyclerView and adapter
+Infinite scrolling with high performance;
+Pull refreshing;
+HTTP requesting/responding and JSON parsing;
+Asynchronous image loading;
+Menu with SearchView and SearchSuggestion;
+Activity and fragment;
+RecyclerView and adapter.
 
-
+References:
 [1]Flickr API https://www.flickr.com/services/api/
 [2]JSON http://www.json.org
